@@ -9,15 +9,14 @@ import eus.birt.dam.ad04te.entity.Cliente;
 public class ClienteService {
 
 	/*
-	 * Regex sencilla: algo (sin espacios ni @) + @ + algo + "." + algo. No
-	 * valida un email al 100% (eso no es realista con una sola regex), solo
-	 * descarta los casos claramente mal escritos.
+	 * Regex sencilla. No valida un email al 100% (eso no es realista con una sola
+	 * regex), solo descarta los casos claramente mal escritos.
 	 */
 	private static final String REGEX_EMAIL = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
 
 	/**
-	 * Crea y guarda un nuevo cliente, validando el formato del email y
-	 * comprobando antes que no exista ya otro cliente con el mismo email.
+	 * Crea y guarda un nuevo cliente, validando el formato del email y comprobando
+	 * antes que no exista ya otro cliente con el mismo email.
 	 */
 	public static Cliente crear(String nombre, String email) {
 
@@ -37,14 +36,14 @@ public class ClienteService {
 			try {
 
 				/*
-				 * comprobar duplicado ANTES de insertar: cuenta cuantos
-				 * clientes tienen ese email ignorando mayusculas/minusculas
-				 * y espacios al principio/final. getSingleResult() porque
-				 * esperamos un UNICO valor (el conteo), no una lista.
+				 * comprobar duplicado ANTES de insertar: cuenta cuantos clientes tienen ese
+				 * email ignorando mayusculas/minusculas y espacios al principio/final.
+				 * getSingleResult() porque esperamos un UNICO valor (el conteo), no una lista.
 				 */
-				Long coincidencias = session.createQuery(
-						"SELECT COUNT(c) FROM Cliente c WHERE lower(trim(c.email)) = lower(trim(:email))",
-						Long.class).setParameter("email", email).getSingleResult();
+				Long coincidencias = session
+						.createQuery("SELECT COUNT(c) FROM Cliente c WHERE lower(trim(c.email)) = lower(trim(:email))",
+								Long.class)
+						.setParameter("email", email).getSingleResult();
 
 				if (coincidencias > 0) {
 					throw new IllegalArgumentException("Ya existe un cliente con ese email.");
