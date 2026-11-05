@@ -105,9 +105,15 @@ public class ReservaService {
 	/**
 	 * Cancela una reserva: devuelve sus plazas a la actividad y la borra, todo
 	 * en la misma transaccion. Si la reserva ya no existe (por ejemplo, porque
-	 * ya se cancelo antes), no hace nada y devuelve false.
+	 * ya se cancelo antes), no hace nada y devuelve null.
+	 *
+	 * Devuelve la propia reserva cancelada (aunque ya este borrada de la BD,
+	 * sus campos en memoria siguen siendo validos) para que quien llame pueda
+	 * mostrar cuantas plazas se han recuperado
+	 * (<code>reserva.getNumeroPlazas()</code>) y cuantas quedan disponibles
+	 * ahora en la actividad (<code>reserva.getActividad().getPlazasDisponibles()</code>).
 	 */
-	public static boolean cancelar(Long reservaId) {
+	public static Reserva cancelar(Long reservaId) {
 
 		if (reservaId == null) {
 			throw new IllegalArgumentException("Debes indicar la reserva a cancelar.");
@@ -135,7 +141,7 @@ public class ReservaService {
 					 * y no puede duplicar el abono de plazas.
 					 */
 					tx.commit();
-					return false;
+					return null;
 				}
 
 				/*
@@ -156,7 +162,7 @@ public class ReservaService {
 				 */
 				tx.commit();
 
-				return true;
+				return reserva;
 
 			} catch (RuntimeException e) {
 				if (tx.isActive()) {

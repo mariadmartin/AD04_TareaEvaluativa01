@@ -29,12 +29,13 @@ public class Menu {
 		while (!salir) {
 			System.out.println();
 			System.out.println("===== ACTIVA =====");
-			System.out.println("1. Alta de monitor");
-			System.out.println("2. Alta de actividad");
-			System.out.println("3. Alta de cliente");
-			System.out.println("4. Buscar actividades");
-			System.out.println("5. Reservar plazas");
+			System.out.println("1. Crear monitor");
+			System.out.println("2. Crear actividad");
+			System.out.println("3. Buscar actividades disponibles");
+			System.out.println("4. Crear cliente");
+			System.out.println("5. Crear reserva");
 			System.out.println("6. Cancelar reserva");
+			System.out.println("7. Listar actividades");
 			System.out.println("8. Salir");
 			System.out.print("Elige una opcion: ");
 
@@ -64,16 +65,19 @@ public class Menu {
 				altaActividad(sc);
 				break;
 			case 3:
-				altaCliente(sc);
+				buscarActividades(sc);
 				break;
 			case 4:
-				buscarActividades(sc);
+				altaCliente(sc);
 				break;
 			case 5:
 				reservarPlazas(sc);
 				break;
 			case 6:
 				cancelarReserva(sc);
+				break;
+			case 7:
+				listarActividades();
 				break;
 			case 8:
 				salir = true;
@@ -214,7 +218,8 @@ public class Menu {
 			int numPlazas = Integer.parseInt(textoPlazas);
 
 			Reserva reserva = ReservaService.crear(clienteId, actividadId, numPlazas);
-			System.out.println("Reserva creada: " + reserva);
+			System.out.println("Reserva creada con id " + reserva.getId() + ". Plazas restantes en la actividad: "
+					+ reserva.getActividad().getPlazasDisponibles());
 
 		} catch (RuntimeException e) {
 			System.out.println("No se pudo crear la reserva: " + e.getMessage());
@@ -232,15 +237,32 @@ public class Menu {
 		try {
 			Long reservaId = Long.parseLong(textoReservaId);
 
-			boolean cancelada = ReservaService.cancelar(reservaId);
-			if (cancelada) {
-				System.out.println("Reserva cancelada.");
+			Reserva cancelada = ReservaService.cancelar(reservaId);
+			if (cancelada != null) {
+				System.out.println("Reserva cancelada. Plazas recuperadas: " + cancelada.getNumeroPlazas()
+						+ ". Plazas disponibles ahora: " + cancelada.getActividad().getPlazasDisponibles());
 			} else {
 				System.out.println("No existe ninguna reserva con id " + reservaId + ".");
 			}
 
 		} catch (RuntimeException e) {
 			System.out.println("No se pudo cancelar la reserva: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Muestra todas las actividades (incluidas las completas), ordenadas por
+	 * fecha, a traves de ActividadService.listarTodas().
+	 */
+	private static void listarActividades() {
+		List<Actividad> actividades = ActividadService.listarTodas();
+
+		if (actividades.isEmpty()) {
+			System.out.println("No hay actividades registradas.");
+		} else {
+			for (Actividad actividad : actividades) {
+				System.out.println(actividad);
+			}
 		}
 	}
 
